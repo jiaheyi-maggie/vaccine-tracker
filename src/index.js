@@ -2,23 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-// class Square extends React.Component {
-//     // constructor(props) {
-//     //     super(props); //always needed
-//     //     this.state = {
-//     //         value: null,
-//     //     };
-//     // }
-//     render() {
-//         //pass in data, arrow function
-//         return (
-//             <button className="square" onClick={ () => this.props.onClick() } >
-//                 {this.props.value}
-//             </button>
-//         );
-//     }
-// }
-
 function Square(props) {
     return (
         <button className={"square"} onClick={props.onClick}>
@@ -27,37 +10,27 @@ function Square(props) {
     );
 }
 
-class Board extends React.Component {
-    //maintains which squares are filled/empty
-    constructor(props) {
-        super(props);
-        this.state = {
-            squares: Array(9).fill(null),
-            xIsNext: true, // default: X is first, initially value is null and will change to X the first turn
-        };
-    }
-
+class Board extends React.Component { //represent board at an instance
     //read values in the squares array
     renderSquare(i) {
         return (
             <Square
-            value={this.state.squares[i]}
-            onClick={() => this.handleClick(i)}
+            value={this.props.squares[i]}
+            onClick={() => this.props.onClick(i)}
             />
         );
     }
 
-    handleClick(i) {
-        const squares = this.state.squares.slice();
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({
-            squares: squares,
-            xIsNext: !this.state.xIsNext,
-        });
-    }
+    
 
     render() {
-        const status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        const winner = calculateWinner(this.state.squares);
+        let status;
+        if (winner) {
+            status = 'Winner: ' + winner;
+        } else {
+            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        }
 
         return React.createElement( 'div', null,
             //children
@@ -91,15 +64,44 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            history:
+                [
+                {squares: Array(9). fill(null)}
+                ],
+            xIsNext: true,
+        };
+    }
     render() {
+        const history = this.state.history;
+        const current = history[history.length - 1];
+        const winner = calculateWinner(current.squares); //why not calculateWinner(current)?
+        let status;
+        if (winner) {
+            status = 'Winner: ' + winner;
+        } else {
+            status = 'Next Player: ' + (this.state.xIsNext ? 'X' : 'O');
+        }
+
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board />
+                    <Board
+                        squares={current.squares}
+                        onClick={(i) => }
+                    />
                 </div>
                 <div className="game-info">
-                    <div> {/* status */} </div>
-                    <ol> {/* TODO */}</ol>
+                    <div>
+                        {/* status */
+                        }
+                    </div>
+                    <ol>
+                        {/* TODO */
+                        }
+                    </ol>
                 </div>
             </div>
         );
@@ -120,9 +122,12 @@ function calculateWinner(squares) {
     ]
 
     for (let i = 0; i < winningLines.length; i++) {
-        const [a, b, c] = winningLines[i];
-        
+        const [a, b, c] = winningLines[i]; // a, b, c corresponds to the first, second, and third entry
+        if ( squares[a] && squares[a] == squares[b] && squares[a] == squares[c]) { //squares[a] is not null -> it is occupied, and check if the positions are the same value
+            return squares[a]; //squares[a]'s value: either 'X' or 'O'
+        }
     }
+    return null;
 }
 
 
